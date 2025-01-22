@@ -16,21 +16,17 @@ const voteService = new VoteService();
 const sessionController = new SessionController(sessionService);
 const socketHandler = new SocketHandler(io, sessionService, voteService);
 
-
 app.use(express.static('public'));
 app.use(cookieParser());
 app.use(express.json());
 
-//handle random routes
 app.get('/', (req, res) => res.sendFile('index.html', { root: './public' }));
 app.post('/create-session', sessionController.createSession);
 app.get('/:sessionId', sessionController.joinSession);
 
-
 io.on('connection', (socket) => socketHandler.handleConnection(socket));
-
 
 const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+	console.log(`Server is running on port ${PORT}`);
 });
