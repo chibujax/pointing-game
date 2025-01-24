@@ -11,12 +11,12 @@ export class SocketHandler {
 	) {}
 
 	public handleConnection(socket: Socket): void {
-		let currentSessionId: string | null = null;
-		let userId: string;
+		//let currentSessionId: string | null = null;
+		// let userId: string;
 
 		const cookies = socket.handshake.headers.cookie?.split('; ') || [];
 		const userIdCookie = cookies.find((row) => row.startsWith('userId='));
-		userId = userIdCookie ? userIdCookie.split('=')[1] : uuidv4();
+		const userId = userIdCookie ? userIdCookie.split('=')[1] : uuidv4();
 
 		if (!userIdCookie) {
 			socket.emit('setUserId', userId);
@@ -28,7 +28,7 @@ export class SocketHandler {
 				return socket.emit('sessionError', 'Session not found');
 			}
 
-			currentSessionId = sessionId;
+			//currentSessionId = sessionId;
 			this.sessionService.addUserToSession(sessionId, userId, name);
 			socket.join(sessionId);
 

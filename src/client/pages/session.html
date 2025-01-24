@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Voting Session</title>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+    <link href="/assets/nucleo-icons.css" rel="stylesheet" />
+    <link href="/assets/nucleo-svg.css" rel="stylesheet" />
+    <link id="pagestyle" href="/assets/argon-dashboard.min.css" rel="stylesheet" />
+</head>
+<body class="g-sidenav-show bg-gray-100">
+    <div class="position-absolute w-100 min-height-300 top-0" style="background-position-y: 50%;">
+        <span class="mask bg-primary opacity-6"></span>
+    </div>
+
+    <div id="notification" class="alert hide" role="alert"></div>
+
+    <!-- Join Session Form -->
+    <main id="join" class="main-content mt-0">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-5 text-center mx-auto">
+                    <h1 class="text-white mb-2 mt-5">Welcome!</h1>
+                    <p class="text-lead text-white">Enter a display name to continue.</p>
+                </div>
+            </div>
+            <div class="row mt-lg-n10 mt-md-n11 mt-n10 justify-content-center">
+                <div class="col-xl-4 col-lg-5 col-md-7 mx-auto">
+                    <div class="card card-profile shadow">
+                        <div class="card-body">
+                            <form role="form">
+                                <div class="mb-3">
+                                    <input type="text" class="form-control" id="name" placeholder="Enter display name">
+                                </div>
+                                <div class="text-center">
+                                    <button type="button" class="btn btn-primary my-4 mb-2" id="joinButton">Join</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Main Session Content -->
+    <div id="mainContent" class="main-content position-relative max-height-vh-100 h-100" style="display: none;">
+        <!-- Navigation -->
+        <nav class="navbar navbar-main navbar-expand-lg px-4 shadow-none border-radius-xl">
+            <div class="container-fluid">
+                <!-- Title Change Input -->
+                <div id="titleChange" class="input-group" style="display: none;">
+                    <span class="input-group-text"><i class="fas fa-edit"></i></span>
+                    <input type="text" id="voteTitle" class="form-control" placeholder="Change title...">
+                </div>
+                <!-- Leave Button -->
+                <button id="leaveButton" class="btn btn-link text-white">Leave Session</button>
+            </div>
+        </nav>
+
+        <!-- Session Info Card -->
+        <div class="card shadow-lg mx-4 card-profile-bottom">
+            <div class="card-body p-3">
+                <div class="row gx-4">
+                    <div class="col-auto">
+                        <div class="avatar avatar-xl position-relative">
+                            <img src="/images/logo.png" alt="logo" class="w-100 border-radius-lg shadow-sm">
+                        </div>
+                    </div>
+                    <div class="col-auto my-auto">
+                        <div class="h-100">
+                            <h5 id="sessionName" class="mb-1">Session: </h5>
+                            <p id="voteTitleDisplay" class="mb-0 font-weight-bold text-sm">Title: </p>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 my-sm-auto ms-sm-auto me-sm-0 mx-auto mt-3">
+                        <div class="nav-wrapper position-relative end-0">
+                            <button id="endBtn" class="btn btn-danger btn-sm ms-auto" style="display: none;">End Session</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Container -->
+        <div class="container-fluid py-4">
+            <div class="row">
+                <!-- Voting Area -->
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <div id="votes" class="d-flex flex-wrap gap-2"></div>
+                            <div id="users" class="row mt-4"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Score Board -->
+                <div class="col-md-4">
+                    <div class="card card-profile">
+                        <div id="scoreAdmin" class="card-header text-center border-0" style="display: none;">
+                            <div class="d-flex justify-content-between">
+                                <button id="revealBtn" class="btn btn-info btn-sm">Reveal</button>
+                                <button id="restartBtn" class="btn btn-dark btn-sm">Restart</button>
+                            </div>
+                        </div>
+                        <div class="card-body pt-0">
+                            <div id="scoreBoard" class="bg-gray-100" style="display: none;">
+                                <!-- Score Grid -->
+                                <div class="row g-3">
+                                    <!-- Highest Vote -->
+                                    <div class="col-6">
+                                        <div class="card bg-primary text-white">
+                                            <div class="card-body">
+                                                <h6 class="mb-0">Highest Vote</h6>
+                                                <div id="highestVote" class="h3 mb-0">0</div>
+                                                <div id="highestVoters" class="text-sm"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Lowest Vote -->
+                                    <div class="col-6">
+                                        <div class="card bg-info text-white">
+                                            <div class="card-body">
+                                                <h6 class="mb-0">Lowest Vote</h6>
+                                                <div id="lowestVote" class="h3 mb-0">0</div>
+                                                <div id="lowestVoters" class="text-sm"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Average -->
+                                    <div class="col-6">
+                                        <div class="card bg-success text-white">
+                                            <div class="card-body">
+                                                <h6 class="mb-0">Average</h6>
+                                                <div id="averageVote" class="h3 mb-0">0</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Total Votes -->
+                                    <div class="col-6">
+                                        <div class="card bg-warning text-white">
+                                            <div class="card-body">
+                                                <h6 class="mb-0">Total Votes</h6>
+                                                <div id="totalVotes" class="h3 mb-0">0</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Transfer Modal -->
+    <div id="adminTransferModal" class="modal" style="display: none;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Transfer Admin Rights</h5>
+                </div>
+                <div class="modal-body">
+                    <p>Please select a new admin before leaving:</p>
+                    <div id="userList" class="d-flex flex-wrap gap-2"></div>
+                </div>
+                <div class="modal-footer">
+                    <button id="cancelTransferBtn" class="btn btn-secondary">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -6,6 +6,7 @@ import { SessionService } from './services/sessionService';
 import { VoteService } from './services/voteService';
 import { SessionController } from './controllers/sessionController';
 import { SocketHandler } from './socket/socketHandler';
+import path from 'path';
 
 const app = express();
 const httpServer = createServer(app);
@@ -16,11 +17,12 @@ const voteService = new VoteService();
 const sessionController = new SessionController(sessionService);
 const socketHandler = new SocketHandler(io, sessionService, voteService);
 
-app.use(express.static('public'));
+app.use(express.static('dist/public'));
 app.use(cookieParser());
 app.use(express.json());
+app.use('/images', express.static(path.join(__dirname, '../dist/public/images')));
 
-app.get('/', (req, res) => res.sendFile('index.html', { root: './public' }));
+app.get('/', (req, res) => res.sendFile('index.html', { root: '.dist/public' }));
 app.post('/create-session', sessionController.createSession);
 app.get('/:sessionId', sessionController.joinSession);
 
