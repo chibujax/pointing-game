@@ -8,4 +8,5 @@ coverage.lcov
 .nyc_output/
 dist/
 *.log
+public/
 
