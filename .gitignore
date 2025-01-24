@@ -6,3 +6,6 @@ coverage/
 coverage.json
 coverage.lcov
 .nyc_output/
+dist/
+*.log
+
