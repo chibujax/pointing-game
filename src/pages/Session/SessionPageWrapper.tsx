@@ -22,12 +22,13 @@ const SessionPageWrapper = (): JSX.Element => {
 	};
 
 	const handleUserUpdate = (users: Array<[string, string]>): void => {
+		console.log("wrapper update", users)
 		const userObjects = users.map(([id, name]) => ({ id, name }));
 		setUsers(userObjects);
 	};
 
 	const handleVoteUpdate = (votedUsers: string[]): void => {
-		console.log("sessionWraper setting votedUsers", votedUsers)
+		console.log('sessionWraper setting votedUsers', votedUsers);
 		useVoteStore.getState().setVotedUsers(votedUsers);
 	};
 

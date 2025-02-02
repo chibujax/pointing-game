@@ -48,6 +48,7 @@ export class SocketHandler {
       if (updatedSession) {
         const userList = Object.entries(updatedSession.users);
         const votedUsers = Object.keys(updatedSession.votes);
+        console.log("emit users ", userList, votedUsers)
         this.io.to(sessionId).emit('userList', { userList, votedUsers });
       }
     });
@@ -105,7 +106,8 @@ export class SocketHandler {
         if (session) {
           this.sessionService.removeUserFromSession(session.id, userId);
           const userList = Object.entries(session.users);
-          this.io.to(session.id).emit('userList', userList);
+          const votedUsers = Object.keys(session.votes);
+          this.io.to(session.id).emit('userList', { userList, votedUsers });
         }
       }
     });
@@ -125,7 +127,8 @@ export class SocketHandler {
       const updatedSession = this.sessionService.getSession(session.id);
       if (updatedSession) {
         const userList = Object.entries(updatedSession.users);
-        this.io.to(session.id).emit('userList', userList);
+        const votedUsers = Object.keys(session.votes);
+        this.io.to(session.id).emit('userList', { userList, votedUsers });
       }
       
       console.log(`User ${userId} left session ${session.id}`);
