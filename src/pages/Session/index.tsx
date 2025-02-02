@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PageLayout } from '../../components/layout/PageLayout';
 import { useSession } from '../../hooks/useSession';
 import { useVoting } from '../../hooks/useVoting';
-import { VoteCard } from '../../components/session/VoteCard';
+//import { VoteCard } from '../../components/session/VoteCard';
 import { UserBoard } from '../../components/session/UserCard';
 import { ScoreBoard } from '../../components/session/ScoreBoard';
-import { AdminControls } from '../../components/session/AdminControls';
+//import { AdminControls } from '../../components/session/AdminControls';
 import { JoinSession } from './JoinSession';
 import { useUserStore } from '../../stores/userStore';
 import { SessionHeader } from '@/components/layout/Header';
@@ -15,6 +15,7 @@ import { TopNav } from '@/components/ui/Topnav';
 import { MidNav } from '@/components/ui/Midnav';
 import { useSessionStore } from '@/stores/sessionStore';
 import { useVoteStore } from '@/stores/voteStore';
+import { Session } from '@/types';
 
 const SessionPage = (): JSX.Element => {
 	const { sessionId = '' } = useParams();
@@ -23,10 +24,23 @@ const SessionPage = (): JSX.Element => {
 	const [isValidating, setIsValidating] = useState(true);
 	const [sessionName, setSessionName] = useState('');
 	const { userId, displayName, isOwner, setUser, setSession } = useUserStore();
-	const { session, start, leave, end, updateUsers, setOwner } = useSession();
-	const { selectedVote, isRevealed, results, handleVote, handleReveal, resetVoting } =
-		useVoting();
+	const { session, start, leave, end } = useSession();
+	const { isRevealed, results, handleVote } = useVoting();
 	const votedUsers = useVoteStore((state) => state.votedUsers);
+	const startSession = (
+		sessionData: Session,
+		id: string,
+		userName: string,
+		showJoin: boolean = false,
+	): void => {
+		const isSessionOwner = sessionData.owner === id;
+		start(sessionData.id, userName, sessionData.points, id, sessionName, isSessionOwner);
+		setSession(sessionId, isSessionOwner);
+		const votedUsers = Object.keys(sessionData.votes);
+		console.log("session getting votedUsers", votedUsers)
+		useVoteStore.getState().setVotedUsers(votedUsers);
+		setShowJoin(showJoin);
+	};
 
 	useEffect(() => {
 		let isMounted = true;
@@ -39,35 +53,15 @@ const SessionPage = (): JSX.Element => {
 					navigate('/');
 					return;
 				}
-
 				const sessionData = await response.json();
 				if (!isMounted) return;
-
 				if (userId && sessionData.users[userId]) {
-					start(
-						sessionId,
-						displayName || '',
-						sessionData.points,
-						userId,
-						sessionData.name,
-						sessionData.owner === userId,
-					);
-					setSession(sessionId, sessionData.owner === userId);
-					setShowJoin(false);
+					startSession(sessionData, userId, displayName || '');
 				} else if (!userId || !displayName) {
 					setSessionName(sessionData.name);
 					setShowJoin(true);
 				} else {
-					start(
-						sessionId,
-						displayName || '',
-						sessionData.points,
-						userId,
-						sessionData.name,
-						sessionData.owner === userId,
-					);
-					setSession(sessionId, sessionData.owner === userId);
-					setShowJoin(false);
+					startSession(sessionData, userId, displayName || '');
 				}
 			} catch (error) {
 				if (isMounted) navigate('/');
@@ -93,24 +87,17 @@ const SessionPage = (): JSX.Element => {
 		useUserStore.getState().clear();
 		useSessionStore.getState().reset();
 		useVoteStore.getState().reset();
-
 		localStorage.removeItem('session-storage');
 		localStorage.removeItem('user-storage');
 		navigate('/');
 	};
 
-	if (isValidating) {
-		return <div>Loading...</div>;
-	}
+	if (isValidating) return <div>Loading...</div>;
 
-	if (showJoin) {
-		return <JoinSession onJoin={handleJoin} />;
-	}
+	if (showJoin) return <JoinSession onJoin={handleJoin} />;
 
-	//TODO: redirect to join
-	if (!session.id) {
-		return <div>Loading...</div>;
-	}
+	if (!session.id) return <div>Loading...</div>;
+
 	console.log('session is', session);
 	return (
 		<PageLayout sessionId={sessionId} sessionName={session.name || undefined} onLeave={leave}>

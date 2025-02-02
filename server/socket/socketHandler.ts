@@ -47,7 +47,8 @@ export class SocketHandler {
       console.log("session now ", updatedSession);
       if (updatedSession) {
         const userList = Object.entries(updatedSession.users);
-        this.io.to(sessionId).emit('userList', userList);
+        const votedUsers = Object.keys(updatedSession.votes);
+        this.io.to(sessionId).emit('userList', { userList, votedUsers });
       }
     });
 
@@ -69,9 +70,7 @@ export class SocketHandler {
       if(updatedSession){
         const votedUsers = Object.keys(updatedSession.votes);
         console.log("voted users: ", votedUsers)
-        this.io.to(session.id).emit('voteUpdate', {
-          votedUsers
-        });
+        this.io.to(session.id).emit('voteUpdate', votedUsers);
       }
     });
 

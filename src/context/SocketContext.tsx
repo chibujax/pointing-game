@@ -26,6 +26,11 @@ interface SocketProviderProps {
 	onError?: (error: string) => void;
 }
 
+interface UserListProps {
+	users: Array<[string, string]>;
+	votedUsers: string[];
+}
+
 export const SocketContext = createContext<SocketContextValue | null>(null);
 
 export const SocketProvider = ({
@@ -56,12 +61,13 @@ export const SocketProvider = ({
 		socket.on('connect', () => setIsConnected(true));
 		socket.on('disconnect', () => setIsConnected(false));
 
-		socket.on('userList', (users: Array<[string, string]>) => {
-			console.log("Received userList event with users:", users, onUserUpdate);
-			onUserUpdate?.(users);
+		socket.on('userList', (props: UserListProps) => {
+			console.log("Received userList event with users:", props);
+			onUserUpdate?.(props.users);
+			onVoteUpdate?.(props.votedUsers);
 		});
 
-		socket.on('voteUpdate', (votes: Record<string, number>) => {
+		socket.on('voteUpdate', (votes: string[]) => {
 			onVoteUpdate?.(votes);
 		});
 
@@ -78,7 +84,7 @@ export const SocketProvider = ({
 		});
 	};
 
-	const on = useCallback(<T = any,>(event: string, handler: (data: T) => void) => {
+	const on = useCallback(<T = any>(event: string, handler: (data: T) => void) => {
 		socketRef.current?.on(event, handler);
 	}, []);
 

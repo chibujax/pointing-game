@@ -27,6 +27,7 @@ const SessionPageWrapper = (): JSX.Element => {
 	};
 
 	const handleVoteUpdate = (votedUsers: string[]): void => {
+		console.log("sessionWraper setting votedUsers", votedUsers)
 		useVoteStore.getState().setVotedUsers(votedUsers);
 	};
 

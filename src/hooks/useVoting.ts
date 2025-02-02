@@ -7,7 +7,6 @@ export const useVoting = () => {
 	const [selectedVote, setSelectedVote] = useState<number | null>(null);
 	const [isRevealed, setIsRevealed] = useState(false);
 	const [results, setResults] = useState<VoteResults | null>(null);
-	const [votedUsers, setVotedUsers] = useState<string[]>([]);
 
 	const handleVote = useCallback(
 		(vote: number) => {
@@ -34,8 +33,6 @@ export const useVoting = () => {
 		selectedVote,
 		isRevealed,
 		results,
-		votedUsers,
-		setVotedUsers,
 		handleVote,
 		handleReveal,
 		resetVoting,
