@@ -4,6 +4,8 @@ import { VoteResults } from '../types';
 import { useUserStore } from '../stores/userStore';
 import { config } from '../config';
 
+type EventHandler<T> = (data: T) => void;
+
 interface SocketContextValue {
 	isConnected: boolean;
 	joinSession: (sessionId: string, name: string) => void;
@@ -13,8 +15,8 @@ interface SocketContextValue {
 	restartSession: () => void;
 	endSession: () => void;
 	setVoteTitle: (title: string) => void;
-	on: <T = any>(event: string, handler: (data: T) => void) => void;
-	off: <T = any>(event: string, handler: (data: T) => void) => void;
+	on: <T>(event: string, handler: EventHandler<T>) => void;
+	off: <T>(event: string, handler: EventHandler<T>) => void;
 }
 
 interface SocketProviderProps {
@@ -41,12 +43,12 @@ export const SocketProvider = ({
 	onVoteReveal,
 	onSessionEnd,
 	onError,
-}: SocketProviderProps) => {
+}: SocketProviderProps): JSX.Element => {
 	const socketRef = useRef<Socket | null>(null);
 	const [isConnected, setIsConnected] = useState(false);
 	const userId = useUserStore((state) => state.userId);
 
-	const connect = useCallback(() => {
+	const connect = useCallback((): void => {
 		if (!socketRef.current) {
 			socketRef.current = io(config.wsUrl, {
 				query: { userId },
@@ -58,19 +60,17 @@ export const SocketProvider = ({
 		}
 	}, [userId]);
 
-	const setupEventHandlers = (socket: Socket) => {
+	const setupEventHandlers = (socket: Socket): void => {
 		socket.on('connect', () => setIsConnected(true));
 		socket.on('disconnect', () => setIsConnected(false));
 
 		socket.on('userList', (props: UserListProps) => {
-			console.log("Received userList event with users:", props);
 			onUserUpdate?.(props.userList);
 			onVoteUpdate?.(props.votedUsers);
 			onVoteReveal?.(props.storedResult);
 		});
 
 		socket.on('voteUpdate', (votes: string[]) => {
-			console.log("Received voteUpdate event with votes:", votes);
 			onVoteUpdate?.(votes);
 		});
 
@@ -87,20 +87,19 @@ export const SocketProvider = ({
 		});
 	};
 
-	const on = useCallback(<T = any>(event: string, handler: (data: T) => void) => {
+	const on = useCallback(<T,>(event: string, handler: EventHandler<T>): void => {
 		socketRef.current?.on(event, handler);
 	}, []);
 
-	const off = useCallback(<T = any,>(event: string, handler: (data: T) => void) => {
+	const off = useCallback(<T,>(event: string, handler: EventHandler<T>): void => {
 		socketRef.current?.off(event, handler);
 	}, []);
 
-	const joinSession = useCallback((sessionId: string, name: string) => {
+	const joinSession = useCallback((sessionId: string, name: string): void => {
 		socketRef.current?.emit('joinSession', { sessionId, name });
 	}, []);
 
-	const leaveSession = useCallback(() => {
-		console.log('Leaving session...');
+	const leaveSession = useCallback((): void => {
 		socketRef.current?.emit('leaveSession');
 	}, []);
 
@@ -108,20 +107,19 @@ export const SocketProvider = ({
 		socketRef.current?.emit('submitVote', { vote });
 	}, []);
 
-	const revealVotes = useCallback(() => {
+	const revealVotes = useCallback((): void => {
 		socketRef.current?.emit('revealVotes');
 	}, []);
 
-	const restartSession = useCallback(() => {
+	const restartSession = useCallback((): void => {
 		socketRef.current?.emit('restartSession');
 	}, []);
 
-	const endSession = useCallback(() => {
-		console.log("ending session")
+	const endSession = useCallback((): void => {
 		socketRef.current?.emit('endSession');
 	}, []);
 
-	const setVoteTitle = useCallback((title: string) => {
+	const setVoteTitle = useCallback((title: string): void => {
 		socketRef.current?.emit('setVoteTitle', { title });
 	}, []);
 
@@ -153,7 +151,7 @@ export const SocketProvider = ({
 	);
 };
 
-export const useSocket = () => {
+export const useSocket = (): SocketContextValue => {
 	const context = useContext(SocketContext);
 	if (!context) {
 		throw new Error('useSocket must be used within a SocketProvider');

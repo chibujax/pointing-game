@@ -1,4 +1,4 @@
-import React from "react"
+import React from 'react';
 
 interface FormInputProps {
 	type: string;
@@ -19,8 +19,8 @@ export const FormInput = ({
 	onChange,
 	ariaLabel,
 	wrapperClassName = 'mb-3',
-	inputClassName = 'form-control'
-}: FormInputProps) => (
+	inputClassName = 'form-control',
+}: FormInputProps): JSX.Element => (
 	<div className={wrapperClassName}>
 		<input
 			type={type}

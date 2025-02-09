@@ -1,9 +1,15 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { useState, useCallback, useEffect } from 'react';
 import { useSocket } from '../context/SocketContext';
 import { VoteResults } from '../types';
 
-export const useSocketConnection = (sessionId?: string) => {
+interface ContextValue {
+	users: [string, string][];
+	votes: Record<string, number>;
+	voteResults: VoteResults | null;
+	error: string | null;
+}
+
+export const useSocketConnection = (sessionId?: string): ContextValue => {
 	const socket = useSocket();
 	const [users, setUsers] = useState<Array<[string, string]>>([]);
 	const [votes, setVotes] = useState<Record<string, number>>({});

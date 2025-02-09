@@ -1,10 +1,9 @@
-import { FormEvent } from 'react';
 import { Button } from '../Button';
 interface TopNavProps {
 	isAdmin: boolean;
 	sessionName: string | null;
 	sessionTitle: string | null;
-	handleEndSession?: () => void;
+	handleEndSession?: () => void; //(e: FormEvent<Element>) => Promise<void>;
 }
 
 export const MidNav = ({
@@ -39,7 +38,7 @@ export const MidNav = ({
 					<div className="nav-wrapper position-relative end-0">
 						{isAdmin && (
 							<Button
-								onClick={() => {
+								onClick={async () => {
 									if (handleEndSession) {
 										handleEndSession();
 									}

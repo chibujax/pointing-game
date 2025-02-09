@@ -2,6 +2,12 @@ import { memo, useMemo } from 'react';
 import { AdminControls, AdminControlProps } from '../AdminControls';
 import { User, VoteResults } from '@/types';
 
+interface ResultStatsProps {
+	title: string;
+	value: number;
+	color?: string;
+}
+
 interface ResultControlProps extends AdminControlProps {
 	voteResult: VoteResults | null;
 	users: User[];
@@ -15,7 +21,7 @@ interface VoterDisplayProps {
 	score: string;
 	color: string;
 }
-const Stats = ({ title, value, color = 'bg-dark' }): JSX.Element => {
+const ResultStats = ({ title, value, color = 'bg-dark' }: ResultStatsProps): JSX.Element => {
 	return (
 		<div className="col-lg-6 col-12">
 			<div className={`card card-frame ms-sm-3 my-sm-3 ${color} text-white`}>
@@ -77,7 +83,7 @@ export const ScoreBoard = memo(
 				return map;
 			}, {});
 		}, [users]);
-		console.log('users in score', sanitizedUsers);
+
 		return (
 			<div className="col-md-4">
 				<div className="card card-profile">
@@ -125,57 +131,13 @@ export const ScoreBoard = memo(
 										/>
 									</div>
 									<div className="row">
-										<Stats title={'Average'} value={voteResult.average} />
-										<Stats
+										<ResultStats title={'Average'} value={voteResult.average} />
+										<ResultStats
 											title={'Total'}
 											value={voteResult.totalVoters}
 											color={'bg-warning'}
 										/>
 									</div>
-
-									{/* <div className="mb-4">
-									<h5 className="mb-2">Average Score</h5>
-									<p className="text-lg font-semibold">
-										{voteResult.average.toFixed(2)}
-									</p>
-								</div>
-
-								<div className="mb-4">
-									<h5 className="mb-2">
-										Highest Votes ({voteResult.highestVotes.value.join(', ')})
-									</h5>
-									<VoterDisplay
-										voters={voteResult.highestVotes.voters}
-										users={sanitizedUsers}
-									/>
-								</div>
-
-								<div className="mb-4">
-									<h5 className="mb-2">
-										Lowest Votes ({voteResult.lowestVotes.value.join(', ')})
-									</h5>
-									<VoterDisplay
-										voters={voteResult.lowestVotes.voters}
-										users={sanitizedUsers}
-									/>
-								</div>
-
-								{voteResult.otherVotes.length > 0 && (
-									<div className="mb-4">
-										<h5 className="mb-2">Other Votes</h5>
-										<VoterDisplay
-											voters={voteResult.otherVotes}
-											users={sanitizedUsers}
-										/>
-									</div>
-								)}
-
-								<div>
-									<h5 className="mb-2">Total Voters</h5>
-									<p className="text-lg font-semibold">
-										{voteResult.totalVoters}
-									</p>
-								</div> */}
 								</div>
 							</div>
 						</div>

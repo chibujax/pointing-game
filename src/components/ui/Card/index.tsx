@@ -8,11 +8,9 @@ interface CardProps {
 export const Card = ({
 	children,
 	cardClassName = 'card z-index-0',
-	bodyClassName = 'card-body'
-}: CardProps) => (
+	bodyClassName = 'card-body',
+}: CardProps): JSX.Element => (
 	<div className={cardClassName}>
-		<div className={bodyClassName}>
-			{children}
-		</div>
+		<div className={bodyClassName}>{children}</div>
 	</div>
 );

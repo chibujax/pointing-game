@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-//import { useSocket } from '../../../context/SocketContext';
 import { Button } from '../../ui/Button';
 import { User, Vote } from '@/types';
 
@@ -25,14 +24,10 @@ const VotingArea = styled.div`
 export const UserBoard: React.FC<UserBoardProps> = ({
 	points,
 	users,
-	votes,
-	isRevealed,
-	currentUserId,
 	selectedVote,
 	onVote,
 	votedUsers,
 }) => {
-	console.log("votedUsers", votedUsers)
 	return (
 		<div className="col-md-8">
 			<div className="card" style={{ minHeight: '30vh' }}>

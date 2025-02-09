@@ -1,4 +1,3 @@
-import { VoteResults } from '@/types';
 import { memo } from 'react';
 
 export interface AdminControlProps {

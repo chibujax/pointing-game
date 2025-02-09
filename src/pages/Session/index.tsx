@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { PageLayout } from '../../components/layout/PageLayout';
-import { useSession } from '../../hooks/useSession';
-import { useVoting } from '../../hooks/useVoting';
-import { UserBoard } from '../../components/session/UserCard';
-import { ScoreBoard } from '../../components/session/ScoreBoard';
+import { PageLayout } from '@/components/layout/PageLayout';
+import { useSession } from '@/hooks/useSession';
+import { useVoting } from '@/hooks/useVoting';
+import { UserBoard } from '@/components/session/UserCard';
+import { ScoreBoard } from '@/components/session/ScoreBoard';
 import { JoinSession } from './JoinSession';
-import { useUserStore } from '../../stores/userStore';
+import { useUserStore } from '@/stores/userStore';
 import { SessionHeader } from '@/components/layout/Header';
-import mediacity from '../../assets/images/mediacity.jpg';
+import mediacity from '@/assets/images/mediacity.jpg';
 import { TopNav } from '@/components/ui/Topnav';
 import { MidNav } from '@/components/ui/Midnav';
 import { useSessionStore } from '@/stores/sessionStore';
@@ -34,7 +34,6 @@ const SessionPage = (): JSX.Element => {
 		showJoin: boolean = false,
 	): void => {
 		const isSessionOwner = sessionData.owner === id;
-		console.log('session getting session name', sessionData);
 		start(sessionData.id, userName, sessionData.points, id, sessionData.name, isSessionOwner);
 		setSession(sessionId, isSessionOwner);
 		setShowJoin(showJoin);
@@ -96,9 +95,8 @@ const SessionPage = (): JSX.Element => {
 
 	if (!session.id) return <div>Loading...</div>;
 
-	console.log('session is', session);
 	const hasVote = results !== null;
-	console.log(`isRevealed: ${isRevealed}`, results, votedUsers);
+
 	return (
 		<PageLayout sessionId={sessionId} sessionName={session.name || undefined} onLeave={leave}>
 			<SessionHeader backgroundImage={mediacity} />

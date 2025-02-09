@@ -1,9 +1,31 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { useCallback } from 'react';
 import { useSocket } from '../context/SocketContext';
 import { useSessionStore } from '../stores/sessionStore';
+import { User } from '@/types';
 
-export const useSession = () => {
+interface SessionValue {
+	session: {
+		id: string | null;
+		name: string | null;
+		users: User[];
+		isOwner: boolean;
+		points: number[];
+	};
+	start: (
+		sessionId: string,
+		displayName: string,
+		points: number[],
+		userId: string,
+		sessionName: string,
+		isOwner?: boolean,
+	) => void;
+	leave: () => void;
+	end: () => void;
+	updateUsers: (users: Array<[string, string]>) => void;
+	setOwner: (isOwner: boolean) => void;
+}
+
+export const useSession = (): SessionValue => {
 	const { joinSession, leaveSession, endSession } = useSocket();
 	const sessionStore = useSessionStore();
 
@@ -28,7 +50,6 @@ export const useSession = () => {
 	}, [leaveSession, sessionStore]);
 
 	const end = useCallback(() => {
-		console.log('leaving session', sessionStore);
 		if (sessionStore.isOwner) {
 			endSession();
 		}

@@ -33,7 +33,6 @@ export const JoinSession = React.memo(({ onJoin }: JoinSessionProps) => {
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
 		const { value } = e.target;
 		setName(value);
-		console.log("display name is ", name)
 		setError(validateDisplayName(value));
 	};
 

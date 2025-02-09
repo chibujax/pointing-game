@@ -11,65 +11,65 @@ const slideIn = keyframes`
 `;
 
 export const Overlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  animation: ${fadeIn} 0.2s ease-out;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.5);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1000;
+	animation: ${fadeIn} 0.2s ease-out;
 `;
 
 export const ModalContainer = styled.div`
-  background: white;
-  border-radius: 8px;
-  padding: 24px;
-  max-width: 90%;
-  width: 500px;
-  max-height: 90vh;
-  overflow-y: auto;
-  position: relative;
-  animation: ${slideIn} 0.3s ease-out;
+	background: white;
+	border-radius: 8px;
+	padding: 24px;
+	max-width: 90%;
+	width: 500px;
+	max-height: 90vh;
+	overflow-y: auto;
+	position: relative;
+	animation: ${slideIn} 0.3s ease-out;
 `;
 
 export const ModalHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 20px;
 `;
 
 export const ModalTitle = styled.h2`
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 500;
+	margin: 0;
+	font-size: 1.5rem;
+	font-weight: 500;
 `;
 
 export const CloseButton = styled.button`
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  padding: 4px;
-  color: var(--text-color);
-  opacity: 0.6;
-  transition: opacity 0.2s;
+	background: none;
+	border: none;
+	font-size: 1.5rem;
+	cursor: pointer;
+	padding: 4px;
+	color: var(--text-color);
+	opacity: 0.6;
+	transition: opacity 0.2s;
 
-  &:hover {
-    opacity: 1;
-  }
+	&:hover {
+		opacity: 1;
+	}
 `;
 
 export const ModalContent = styled.div`
-  margin-bottom: 24px;
+	margin-bottom: 24px;
 `;
 
 export const ModalFooter = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
+	display: flex;
+	justify-content: flex-end;
+	gap: 12px;
 `;
