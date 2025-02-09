@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Alert, Button, Card, FormInput, CenteredContainer } from '../../components/ui/';
-import { PageLayout } from '../../components/layout/PageLayout';
-import { HomeHeader } from '../../components/layout/Header';
-import { useUserStore } from '../../stores/userStore';
-import { useSessionStore } from '../../stores/sessionStore';
-import mediacity from '../../assets/images/mediacity.jpg';
+import { Alert, Button, Card, FormInput, CenteredContainer } from '@/components/ui/';
+import { PageLayout } from '@/components/layout/PageLayout';
+import { HomeHeader } from '@/components/layout/Header';
+import { useUserStore } from '@/stores/userStore';
+import { useSessionStore } from '@/stores/sessionStore';
+import mediacity from '@/assets/images/mediacity.jpg';
 
 type ValidationType = string | undefined;
+type FormField = 'sessionName' | 'displayName' | 'points';
 
 const validateSessionName = (value: string): ValidationType => {
 	if (!value || value.length < 3) return 'Session name must be at least 3 characters';
@@ -32,21 +33,23 @@ const validatePoints = (value: string): ValidationType => {
 	return undefined;
 };
 
-const inputValidator = {
+const inputValidator: Record<FormField, (value: string) => ValidationType> = {
 	sessionName: validateSessionName,
 	displayName: validateDisplayName,
 	points: validatePoints,
 };
 
-interface FormErrors {
-	sessionName?: string;
-	displayName?: string;
-	points?: string;
+interface FormData {
+	sessionName: string;
+	displayName: string;
+	points: string;
 }
+
+type FormErrors = Partial<Record<FormField, string>>;
 
 const HomePage = (): JSX.Element => {
 	const navigate = useNavigate();
-	const [formData, setFormData] = useState({
+	const [formData, setFormData] = useState<FormData>({
 		sessionName: '',
 		displayName: '',
 		points: '',
@@ -111,8 +114,15 @@ const HomePage = (): JSX.Element => {
 
 	const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
 		const { id, value } = e.target;
-		setFormData((prev) => ({ ...prev, [id]: value }));
-		setErrors((prev) => ({ ...prev, [id]: inputValidator[id](value) }));
+		if (isFormField(id)) {
+			setFormData((prev) => ({ ...prev, [id]: value }));
+			setErrors((prev) => ({ ...prev, [id]: inputValidator[id](value) }));
+		}
+	};
+
+	// Type guard to ensure id is a valid form field
+	const isFormField = (id: string): id is FormField => {
+		return id in inputValidator;
 	};
 
 	return (

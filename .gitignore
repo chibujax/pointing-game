@@ -6,8 +6,9 @@ coverage/
 coverage.json
 coverage.lcov
 .nyc_output/
-dist/
 *.log
 public/
 .env
 copied
+dist
+dist-server
