@@ -23,7 +23,7 @@ export const useVoteStore = create<VoteState>()(
 			votedUsers: [],
 			setVote: (vote) => set({ selectedVote: vote }),
 			setVotedUsers: (votedUsers) => set({ votedUsers }),
-			setResults: (results) => set({ results }),
+			setResults: (results) => set({ results, isRevealed: results !== null }),
 			reveal: () => set({ isRevealed: true }),
 			reset: () =>
 				set({

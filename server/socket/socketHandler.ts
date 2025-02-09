@@ -48,8 +48,9 @@ export class SocketHandler {
       if (updatedSession) {
         const userList = Object.entries(updatedSession.users);
         const votedUsers = Object.keys(updatedSession.votes);
-        console.log("emit users ", userList, votedUsers)
-        this.io.to(sessionId).emit('userList', { userList, votedUsers });
+        const storedResult = updatedSession.storedResult;
+        console.log("emit users ", userList, votedUsers, storedResult)
+        this.io.to(sessionId).emit('userList', { userList, votedUsers, storedResult  });
       }
     });
 
@@ -78,9 +79,10 @@ export class SocketHandler {
     socket.on('revealVotes', () => {
       const userId = this.socketToUserId.get(socket.id);
       const session = this.findUserSession(userId);
-      if (!session) return;
-
+      if (!session || !userId) return;
       const results = this.voteService.processVotes(session.votes);
+      this.sessionService.updateSession(session.id, { storedResult: results });
+      console.log('Emitting vote results:', results);
       this.io.to(session.id).emit('voteResults', results);
 
     });
@@ -90,8 +92,16 @@ export class SocketHandler {
       const session = this.findUserSession(userId);
       if (!session) return;
 
-      this.sessionService.updateSession(session.id, { votes: {} });
-      this.io.to(session.id).emit('sessionRestarted');
+      const updatedSession = this.sessionService.updateSession(session.id, { votes: {}, storedResult: null });
+      if(updatedSession){
+        const userList = Object.entries(updatedSession.users);
+        const votedUsers = Object.keys(updatedSession.votes);
+        const storedResult = updatedSession.storedResult;
+        console.log("emit users ", userList, votedUsers, storedResult)
+        //this.io.to(session.id).emit('sessionRestarted');
+        this.io.to(session.id).emit('userList', { userList, votedUsers, storedResult  });
+      }
+
     });
 
     socket.on('disconnect', () => {
@@ -107,7 +117,8 @@ export class SocketHandler {
           this.sessionService.removeUserFromSession(session.id, userId);
           const userList = Object.entries(session.users);
           const votedUsers = Object.keys(session.votes);
-          this.io.to(session.id).emit('userList', { userList, votedUsers });
+          const storedResult = session.storedResult;
+          this.io.to(session.id).emit('userList', { userList, votedUsers, storedResult });
         }
       }
     });
@@ -127,8 +138,9 @@ export class SocketHandler {
       const updatedSession = this.sessionService.getSession(session.id);
       if (updatedSession) {
         const userList = Object.entries(updatedSession.users);
-        const votedUsers = Object.keys(session.votes);
-        this.io.to(session.id).emit('userList', { userList, votedUsers });
+        const votedUsers = Object.keys(updatedSession.votes);
+        const storedResult = updatedSession.storedResult;
+        this.io.to(session.id).emit('userList', { userList, votedUsers, storedResult });
       }
       
       console.log(`User ${userId} left session ${session.id}`);

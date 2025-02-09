@@ -29,6 +29,7 @@ interface SocketProviderProps {
 interface UserListProps {
 	userList: Array<[string, string]>;
 	votedUsers: string[];
+	storedResult: VoteResults;
 }
 
 export const SocketContext = createContext<SocketContextValue | null>(null);
@@ -65,6 +66,7 @@ export const SocketProvider = ({
 			console.log("Received userList event with users:", props);
 			onUserUpdate?.(props.userList);
 			onVoteUpdate?.(props.votedUsers);
+			onVoteReveal?.(props.storedResult);
 		});
 
 		socket.on('voteUpdate', (votes: string[]) => {
@@ -72,7 +74,7 @@ export const SocketProvider = ({
 			onVoteUpdate?.(votes);
 		});
 
-		socket.on('voteReveal', (results: VoteResults) => {
+		socket.on('voteResults', (results: VoteResults) => {
 			onVoteReveal?.(results);
 		});
 

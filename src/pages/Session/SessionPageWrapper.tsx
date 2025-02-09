@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useUserStore } from '@/stores/userStore';
 import { useSessionStore } from '@/stores/sessionStore';
 import { useVoteStore } from '@/stores/voteStore';
+import { VoteResults } from '@/types';
 
 const SessionPageWrapper = (): JSX.Element => {
 	const navigate = useNavigate();
@@ -22,7 +23,7 @@ const SessionPageWrapper = (): JSX.Element => {
 	};
 
 	const handleUserUpdate = (users: Array<[string, string]>): void => {
-		console.log("wrapper update", users)
+		console.log('wrapper update', users);
 		const userObjects = users.map(([id, name]) => ({ id, name }));
 		setUsers(userObjects);
 	};
@@ -32,11 +33,17 @@ const SessionPageWrapper = (): JSX.Element => {
 		useVoteStore.getState().setVotedUsers(votedUsers);
 	};
 
+	const handleVoteReveal = (results: VoteResults): void => {
+		console.log('sessionWraper setting results', results);
+		useVoteStore.getState().setResults(results);
+	};
+
 	return (
 		<SocketProvider
 			onSessionEnd={handleSessionEnd}
 			onVoteUpdate={handleVoteUpdate}
 			onUserUpdate={handleUserUpdate}
+			onVoteReveal={handleVoteReveal}
 		>
 			<SessionPage />
 		</SocketProvider>

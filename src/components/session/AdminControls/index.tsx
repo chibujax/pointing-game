@@ -1,98 +1,37 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
-import { Button } from '../../ui/Button';
+import { VoteResults } from '@/types';
+import { memo } from 'react';
 
-interface AdminControlsProps {
-  onReveal: () => void;
-  onRestart: () => void;
-  onEnd: () => void;
-  onTitleChange: (title: string) => void;
-  currentTitle?: string;
-  votingInProgress: boolean;
+export interface AdminControlProps {
+	handleReveal: () => void;
+	handleRestart: () => void;
+	isRevealed: boolean;
+	hasVote: boolean;
 }
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 20px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px var(--shadow-color);
-`;
-
-const TitleInput = styled.input`
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-  width: 100%;
-
-  &:focus {
-    outline: none;
-    border-color: var(--primary-color);
-  }
-`;
-
-const ButtonGroup = styled.div`
-  display: flex;
-  gap: 12px;
-`;
-
-export const AdminControls = React.memo(({
-  onReveal,
-  onRestart,
-  onEnd,
-  onTitleChange,
-  currentTitle = '',
-  votingInProgress
-}: AdminControlsProps) => {
-  const [title, setTitle] = useState(currentTitle);
-
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTitle(e.target.value);
-  };
-
-  const handleTitleSubmit = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && title.trim()) {
-      onTitleChange(title.trim());
-    }
-  };
-
-  return (
-    <Container>
-      <TitleInput
-        value={title}
-        onChange={handleTitleChange}
-        onKeyDown={handleTitleSubmit}
-        placeholder="Enter vote title..."
-      />
-
-      <ButtonGroup>
-        <Button
-          variant="primary"
-          onClick={onReveal}
-          disabled={!votingInProgress}
-        >
-          Reveal Votes
-        </Button>
-
-        <Button
-          variant="secondary"
-          onClick={onRestart}
-        >
-          New Vote
-        </Button>
-
-        <Button
-          variant="danger"
-          onClick={onEnd}
-        >
-          End Session
-        </Button>
-      </ButtonGroup>
-    </Container>
-  );
-});
+export const AdminControls = memo(
+	({ handleReveal, handleRestart, isRevealed, hasVote }: AdminControlProps): JSX.Element => {
+		return (
+			<div className="d-flex justify-content-between">
+				{!isRevealed && (
+					<div id="revealBtn">
+						<a href="#" onClick={handleReveal} className="btn btn-sm btn-info mb-0">
+							Reveal
+						</a>
+					</div>
+				)}
+				{hasVote && (
+					<a
+						href="#"
+						id="restart"
+						onClick={handleRestart}
+						className="btn btn-sm btn-dark float-right mb-0"
+					>
+						Restart
+					</a>
+				)}
+			</div>
+		);
+	},
+);
 
 AdminControls.displayName = 'AdminControls';

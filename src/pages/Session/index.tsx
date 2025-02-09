@@ -3,10 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { PageLayout } from '../../components/layout/PageLayout';
 import { useSession } from '../../hooks/useSession';
 import { useVoting } from '../../hooks/useVoting';
-//import { VoteCard } from '../../components/session/VoteCard';
 import { UserBoard } from '../../components/session/UserCard';
 import { ScoreBoard } from '../../components/session/ScoreBoard';
-//import { AdminControls } from '../../components/session/AdminControls';
 import { JoinSession } from './JoinSession';
 import { useUserStore } from '../../stores/userStore';
 import { SessionHeader } from '@/components/layout/Header';
@@ -25,8 +23,10 @@ const SessionPage = (): JSX.Element => {
 	const [sessionName, setSessionName] = useState('');
 	const { userId, displayName, isOwner, setUser, setSession } = useUserStore();
 	const { session, start, leave, end } = useSession();
-	const { isRevealed, results, handleVote } = useVoting();
+	const { handleVote, handleReveal, resetVoting } = useVoting();
 	const votedUsers = useVoteStore((state) => state.votedUsers);
+	const results = useVoteStore((state) => state.results);
+	const isRevealed = useVoteStore((state) => state.isRevealed);
 	const startSession = (
 		sessionData: Session,
 		id: string,
@@ -34,11 +34,9 @@ const SessionPage = (): JSX.Element => {
 		showJoin: boolean = false,
 	): void => {
 		const isSessionOwner = sessionData.owner === id;
-		start(sessionData.id, userName, sessionData.points, id, sessionName, isSessionOwner);
+		console.log('session getting session name', sessionData);
+		start(sessionData.id, userName, sessionData.points, id, sessionData.name, isSessionOwner);
 		setSession(sessionId, isSessionOwner);
-		const votedUsers = Object.keys(sessionData.votes);
-		console.log("session getting votedUsers", votedUsers)
-		useVoteStore.getState().setVotedUsers(votedUsers);
 		setShowJoin(showJoin);
 	};
 
@@ -99,6 +97,8 @@ const SessionPage = (): JSX.Element => {
 	if (!session.id) return <div>Loading...</div>;
 
 	console.log('session is', session);
+	const hasVote = results !== null;
+	console.log(`isRevealed: ${isRevealed}`, results, votedUsers);
 	return (
 		<PageLayout sessionId={sessionId} sessionName={session.name || undefined} onLeave={leave}>
 			<SessionHeader backgroundImage={mediacity} />
@@ -121,57 +121,17 @@ const SessionPage = (): JSX.Element => {
 						onVote={handleVote}
 						votedUsers={votedUsers}
 					/>
-					<ScoreBoard results={results} revealed={isRevealed} />
+					<ScoreBoard
+						voteResult={results}
+						isRevealed={isRevealed}
+						handleReveal={handleReveal}
+						handleRestart={resetVoting}
+						hasVote={hasVote}
+						users={session.users}
+						isAdmin={isOwner}
+					/>
 				</div>
 			</div>
-			{/* <div>Welcome {displayName}</div> */}
-			{/* <Grid>
-        <div>
-          <VotingArea>
-            {session.points.map((point) => (
-              <VoteCard
-                key={point}
-                value={point}
-                isSelected={selectedVote === point}
-                onClick={() => handleVote(point)}
-                disabled={isRevealed}
-              />
-            ))}
-          </VotingArea>
-
-          <UsersGrid>
-            {session.users.map(([id, name]) => (
-              <UserCard
-                key={id}
-                id={id}
-                name={name}
-                hasVoted={!!results?.votes[id]}
-                score={isRevealed ? results?.votes[id] : undefined}
-                isOwner={session.isOwner}
-              />
-            ))}
-          </UsersGrid>
-        </div>
-
-        <div>
-          {session.isOwner && (
-            <AdminControls
-              onReveal={handleReveal}
-              onRestart={resetVoting}
-              onEnd={end}
-              onTitleChange={() => {}}
-              votingInProgress={!isRevealed && session.users.length > 0}
-            />
-          )}
-
-          {results && (
-            <ScoreBoard
-              results={results}
-              revealed={isRevealed}
-            />
-          )}
-        </div>
-      </Grid> */}
 		</PageLayout>
 	);
 };

@@ -13,7 +13,7 @@ export class SessionService {
       id: sessionId,
       ...sessionData,
     } as Session;
-
+console.log("*****", sessionData)
     this.sessions.set(sessionId, session);
     return session;
   }

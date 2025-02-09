@@ -14,16 +14,19 @@ export class VoteService {
       voteCount[vote] = (voteCount[vote] || 0) + 1;
     });
 
-    const maxVoteCount = Math.max(...Object.values(voteCount));
-    const minVoteCount = Math.min(...Object.values(voteCount));
+    const frequencies = Object.entries(voteCount)
+      .map(([value, count]) => ({ value: parseInt(value), count }))
+      .sort((a, b) => b.count - a.count || a.value - b.value);
 
-    const highestVoteValues = Object.entries(voteCount)
-      .filter(([, count]) => count === maxVoteCount)
-      .map(([value]) => parseInt(value));
+    const highestCount = frequencies[0]?.count || 0;
+    const highestVoteValues = frequencies
+      .filter(f => f.count === highestCount)
+      .map(f => f.value);
 
-    const lowestVoteValues = Object.entries(voteCount)
-      .filter(([, count]) => count === minVoteCount)
-      .map(([value]) => parseInt(value));
+    const lowestCount = frequencies[frequencies.length - 1]?.count || 0;
+    const lowestVoteValues = frequencies
+      .filter(f => f.count === lowestCount)
+      .map(f => f.value);
 
     const highestVotes: Array<{ [key: string]: number }> = [];
     const lowestVotes: Array<{ [key: string]: number }> = [];
@@ -41,7 +44,7 @@ export class VoteService {
     });
 
     const sum = voteEntries.reduce((acc, [, vote]) => acc + vote, 0);
-    const average = sum / totalVoters;
+    const average = Math.round((sum / totalVoters) *100)/ 100;
 
     return {
       votes,
@@ -52,6 +55,7 @@ export class VoteService {
       totalVoters,
     };
   }
+
 
   private getEmptyVoteResult(): VoteResults {
     return {

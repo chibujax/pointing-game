@@ -1,141 +1,189 @@
-{
-	/* <div class="col-md-4">
-<div class="card card-profile">
-    <div id="scoreAdmin" style="display: none!important;" class="card-header text-center border-0">
-        <div class="d-flex justify-content-between">
-            <div id="revealBtn">
-                <a href="javascript:reveal();" class="btn btn-sm btn-info mb-0">Reveal</a>
-            </div>
+import { memo, useMemo } from 'react';
+import { AdminControls, AdminControlProps } from '../AdminControls';
+import { User, VoteResults } from '@/types';
 
-            <a href="javascript:restart();" id="restart"
-                class="btn btn-sm btn-dark float-right mb-0">Restart</a>
-        </div>
-    </div>
-    <div class="card-body pt-0">
-        <div class="text-center mt-4">
-            <h5 id="average">
-                Average: 0
-            </h5>
-            <h5 id="highestVote" style="display: none;">
-                Highest Vote: 0
-            </h5>
-            <h5 id="lowestVote" style="display: none;">
-                Lowest Vote: 0
-            </h5>
-            <h5 id="totalVoters" style="display: none;">
-                Total Votes: 0
-            </h5>
-            <div id="allVoters" style="display: none; font-size: small;">
-                Total Votes: 0
-            </div>
-        </div>
-    </div>
-</div>
-</div> */
-}
-/**
- * This is the original app score board.
- * For a normal user, nothing shows until admin reveals the votes.
- */
-
-import React from 'react';
-import styled from 'styled-components';
-import { VoteResults } from '../../../types';
-
-interface ScoreBoardProps {
-	results: VoteResults | null;
-	revealed: boolean;
+interface ResultControlProps extends AdminControlProps {
+	voteResult: VoteResults | null;
+	users: User[];
+	isAdmin: boolean;
 }
 
-const BoardContainer = styled.div`
-	background: white;
-	border-radius: 8px;
-	padding: 1.5rem;
-	margin-bottom: 1rem;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-`;
-
-const StatHeader = styled.div`
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	margin-bottom: 0.5rem;
-`;
-
-const StatTitle = styled.h5`
-	margin: 0;
-	color: var(--text-color);
-`;
-
-const StatValue = styled.span`
-	font-weight: bold;
-	color: var(--primary-color);
-`;
-
-const VoterList = styled.div`
-	font-size: 0.875rem;
-	color: var(--text-secondary);
-	margin-top: 0.5rem;
-`;
-
-export const ScoreBoard = React.memo(({ results, revealed }: ScoreBoardProps) => {
-	if (!revealed) return null;
-
+interface VoterDisplayProps {
+	voters: Array<{ [key: string]: number }>;
+	users: Record<string, string>;
+	title: string;
+	score: string;
+	color: string;
+}
+const Stats = ({ title, value, color = 'bg-dark' }): JSX.Element => {
 	return (
-		<div className="col-md-4">
-			<div className="card card-profile">
-				<BoardContainer>
-					<StatHeader>
-						<StatTitle>Average Score</StatTitle>
-						<StatValue>{results?.average.toFixed(1)}</StatValue>
-					</StatHeader>
-
-					<StatHeader>
-						<StatTitle>
-							Highest Vote
-							{results?.highestVotes && results?.highestVotes.value.length > 1
-								? 's'
-								: ''}
-						</StatTitle>
-						<StatValue>{results?.highestVotes.value.join(', ')}</StatValue>
-					</StatHeader>
-					<VoterList>
-						{results?.highestVotes.voters.map((voter, index) => (
-							<div key={index}>
-								{Object.entries(voter).map(([id, vote]) => (
-									<span key={id}>{vote}</span>
-								))}
-							</div>
-						))}
-					</VoterList>
-
-					<StatHeader>
-						<StatTitle>
-							Lowest Vote
-							{results?.lowestVotes && results?.lowestVotes.value.length > 1
-								? 's'
-								: ''}
-						</StatTitle>
-						<StatValue>{results?.lowestVotes.value.join(', ')}</StatValue>
-					</StatHeader>
-					<VoterList>
-						{results?.lowestVotes.voters.map((voter, index) => (
-							<div key={index}>
-								{Object.entries(voter).map(([id, vote]) => (
-									<span key={id}>{vote}</span>
-								))}
-							</div>
-						))}
-					</VoterList>
-
-					<StatHeader>
-						<StatTitle>Total Voters</StatTitle>
-						<StatValue>{results?.totalVoters}</StatValue>
-					</StatHeader>
-				</BoardContainer>
+		<div className="col-lg-6 col-12">
+			<div className={`card card-frame ms-sm-3 my-sm-3 ${color} text-white`}>
+				<div className="card-body">
+					<div className="font-weight-bolder">{title}</div>
+					<div id="averageVotes" className="font-weight-bold">
+						{value}
+					</div>
+				</div>
 			</div>
 		</div>
 	);
-});
+};
+
+const VoterDisplay = ({ voters, users, title, score, color }: VoterDisplayProps): JSX.Element => {
+	return (
+		<div className="col-lg-4 col-12" style={{ display: 'flex', flexDirection: 'column' }}>
+			<div
+				className={`card card-frame ms-sm-3 mt-sm-3 ${color} text-white`}
+				style={{ flex: 1 }}
+			>
+				<div className="card-body">
+					<div className="font-weight-bolder">{title}</div>
+					<div id="highestVote" className="font-weight-bold">
+						{score}
+					</div>
+					<div className="text-xxs">
+						{voters.map((voter) => {
+							const userId: string = Object.keys(voter)[0];
+							const vote = voter[userId];
+							const userName = users[userId];
+							return (
+								<span key={userId}>
+									{userName}: {vote}
+									<br />
+								</span>
+							);
+						})}
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+};
+
+export const ScoreBoard = memo(
+	({
+		handleReveal,
+		handleRestart,
+		isRevealed,
+		hasVote,
+		voteResult,
+		isAdmin,
+		users,
+	}: ResultControlProps) => {
+		const sanitizedUsers = useMemo(() => {
+			return users.reduce((map: Record<string, string>, item: User) => {
+				map[item.id] = item.name;
+				return map;
+			}, {});
+		}, [users]);
+		console.log('users in score', sanitizedUsers);
+		return (
+			<div className="col-md-4">
+				<div className="card card-profile">
+					<div id="scoreAdmin" className="card-header text-center border-0">
+						{isAdmin && (
+							<AdminControls
+								handleReveal={handleReveal}
+								handleRestart={handleRestart}
+								isRevealed={isRevealed}
+								hasVote={hasVote}
+							/>
+						)}
+						<h4>Result</h4>
+					</div>
+					{isRevealed && voteResult && (
+						<div className="card-body pt-0">
+							<div className="text-center mt-4">
+								<div
+									id="scoreBoard2"
+									style={{ display: 'block' }}
+									className="bg-gray-100"
+								>
+									<div className="row">
+										{' '}
+										<VoterDisplay
+											voters={voteResult.highestVotes.voters}
+											users={sanitizedUsers}
+											title={'Highest Vote:'}
+											score={voteResult.highestVotes.value.join(', ')}
+											color={'bg-primary'}
+										/>
+										<VoterDisplay
+											voters={voteResult.lowestVotes.voters}
+											users={sanitizedUsers}
+											title={'Lowest Vote:'}
+											score={voteResult.lowestVotes.value.join(', ')}
+											color={'bg-info'}
+										/>
+										<VoterDisplay
+											voters={voteResult.otherVotes}
+											users={sanitizedUsers}
+											title={'Other Votes:'}
+											score={''}
+											color={'bg-success'}
+										/>
+									</div>
+									<div className="row">
+										<Stats title={'Average'} value={voteResult.average} />
+										<Stats
+											title={'Total'}
+											value={voteResult.totalVoters}
+											color={'bg-warning'}
+										/>
+									</div>
+
+									{/* <div className="mb-4">
+									<h5 className="mb-2">Average Score</h5>
+									<p className="text-lg font-semibold">
+										{voteResult.average.toFixed(2)}
+									</p>
+								</div>
+
+								<div className="mb-4">
+									<h5 className="mb-2">
+										Highest Votes ({voteResult.highestVotes.value.join(', ')})
+									</h5>
+									<VoterDisplay
+										voters={voteResult.highestVotes.voters}
+										users={sanitizedUsers}
+									/>
+								</div>
+
+								<div className="mb-4">
+									<h5 className="mb-2">
+										Lowest Votes ({voteResult.lowestVotes.value.join(', ')})
+									</h5>
+									<VoterDisplay
+										voters={voteResult.lowestVotes.voters}
+										users={sanitizedUsers}
+									/>
+								</div>
+
+								{voteResult.otherVotes.length > 0 && (
+									<div className="mb-4">
+										<h5 className="mb-2">Other Votes</h5>
+										<VoterDisplay
+											voters={voteResult.otherVotes}
+											users={sanitizedUsers}
+										/>
+									</div>
+								)}
+
+								<div>
+									<h5 className="mb-2">Total Voters</h5>
+									<p className="text-lg font-semibold">
+										{voteResult.totalVoters}
+									</p>
+								</div> */}
+								</div>
+							</div>
+						</div>
+					)}
+				</div>
+			</div>
+		);
+	},
+);
 
 ScoreBoard.displayName = 'ScoreBoard';

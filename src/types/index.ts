@@ -15,6 +15,7 @@ export interface Session {
 	points: number[];
 	owner: string;
 	voteTitle?: string;
+	storedResult: VoteResults | null;
 }
 
 export interface VoteResults {

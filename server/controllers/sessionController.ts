@@ -19,7 +19,8 @@ export class SessionController {
         points: points,
         users: {[userId]: displayName},
         votes: {},
-        owner: userId
+        owner: userId,
+        storedResult: null
       };
 
       const session = this.sessionService.createSession(sessionData);
