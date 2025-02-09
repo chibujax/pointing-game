@@ -42,7 +42,7 @@ export const Alert = ({
 
 	return (
 		<div
-			className={`alert alert-${variant} ${dismissible ? 'alert-dismissible fade show' : ''} ${className}`.trim()}
+			className={`alert text-white alert-${variant} ${dismissible ? 'alert-dismissible fade show' : ''} ${className}`.trim()}
 			role="alert"
 		>
 			{icon && (

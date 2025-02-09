@@ -14,6 +14,7 @@ import { MidNav } from '@/components/ui/Midnav';
 import { useSessionStore } from '@/stores/sessionStore';
 import { useVoteStore } from '@/stores/voteStore';
 import { Session } from '@/types';
+import { Alert } from '@/components/ui';
 
 const SessionPage = (): JSX.Element => {
 	const { sessionId = '' } = useParams();
@@ -27,6 +28,8 @@ const SessionPage = (): JSX.Element => {
 	const votedUsers = useVoteStore((state) => state.votedUsers);
 	const results = useVoteStore((state) => state.results);
 	const isRevealed = useVoteStore((state) => state.isRevealed);
+	const errorMessage = useSessionStore((state) => state.errorMessage);
+	const setErrorMessage = useSessionStore((state) => state.setErrorMessage);
 	const startSession = (
 		sessionData: Session,
 		id: string,
@@ -79,6 +82,10 @@ const SessionPage = (): JSX.Element => {
 		setShowJoin(false);
 	};
 
+	const handleAlertDismis = (): void => {
+		setErrorMessage(null);
+	};
+
 	const handleLeave = (): void => {
 		leave();
 		useUserStore.getState().clear();
@@ -93,7 +100,7 @@ const SessionPage = (): JSX.Element => {
 
 	if (showJoin) return <JoinSession onJoin={handleJoin} />;
 
-	if (!session.id) return <div>Loading...</div>;
+	if (!session.id) return <div>Error, no session ID found.</div>;
 
 	const hasVote = results !== null;
 
@@ -107,6 +114,15 @@ const SessionPage = (): JSX.Element => {
 				sessionTitle={''}
 				handleEndSession={end}
 			/>
+			{errorMessage && (
+				<Alert
+					onDismiss={handleAlertDismis}
+					variant="danger"
+					title="Error!"
+					message={errorMessage}
+					className={'ms-4 me-4 mt-4'}
+				/>
+			)}
 			<div className="container-fluid py-4">
 				<div className="row">
 					<UserBoard

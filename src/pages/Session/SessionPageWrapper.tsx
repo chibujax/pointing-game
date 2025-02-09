@@ -10,6 +10,7 @@ const SessionPageWrapper = (): JSX.Element => {
 	const navigate = useNavigate();
 	const clearUser = useUserStore((state) => state.clear);
 	const resetSession = useSessionStore((state) => state.reset);
+	const setErrorMessage = useSessionStore((state) => state.setErrorMessage);
 	const resetVote = useVoteStore((state) => state.reset);
 	const setUsers = useSessionStore((state) => state.setUsers);
 
@@ -41,6 +42,7 @@ const SessionPageWrapper = (): JSX.Element => {
 			onVoteUpdate={handleVoteUpdate}
 			onUserUpdate={handleUserUpdate}
 			onVoteReveal={handleVoteReveal}
+			onError={setErrorMessage}
 		>
 			<SessionPage />
 		</SocketProvider>

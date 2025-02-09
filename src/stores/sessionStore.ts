@@ -13,6 +13,7 @@ interface SessionState {
 	isOwner: boolean;
 	points: number[];
 	votes: Record<string, number>;
+	errorMessage: string | null;
 	setSession: (
 		id: string,
 		name: string,
@@ -26,6 +27,7 @@ interface SessionState {
 	setUsers: (users: User[]) => void;
 	removeUser: (userId: string) => void;
 	setVote: (userId: string, vote: number) => void;
+	setErrorMessage: (message: string | null) => void;
 	clearVotes: () => void;
 	reset: () => void;
 }
@@ -37,6 +39,7 @@ const initialState = {
 	isOwner: false,
 	points: [],
 	votes: {},
+	errorMessage: null,
 };
 
 export const useSessionStore = create<SessionState>()(
@@ -70,6 +73,7 @@ export const useSessionStore = create<SessionState>()(
 							Object.entries(state.votes).filter(([id]) => id !== userId),
 						),
 					})),
+				setErrorMessage: (errorMessage) => set((state) => ({ ...state, errorMessage })),
 				setVote: (userId, vote) =>
 					set((state) => ({
 						votes: { ...state.votes, [userId]: vote },

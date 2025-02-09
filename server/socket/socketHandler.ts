@@ -55,6 +55,17 @@ export class SocketHandler {
 			const session = this.findUserSession(userId);
 			if (!session || !userId) return;
 
+			const votingInProgress = Boolean(
+				session.storedResult === null ||
+					(session.storedResult?.votes &&
+						Object.keys(session.storedResult.votes).length === 0),
+			);
+
+			if (!votingInProgress) {
+				socket.emit('error', 'No voting in progress');
+				return;
+			}
+
 			const currentVote = session.votes[userId];
 
 			if (currentVote === data.vote) {

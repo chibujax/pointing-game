@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Button, Card, FormInput, CenteredContainer } from '../../components/ui/';
-import { PageLayout } from '../../components/layout/PageLayout';
-import { HomeHeader } from '../../components/layout/Header';
-import mediacity from '../../assets/images/mediacity.jpg';
+import { Button, Card, FormInput, CenteredContainer } from '@/components/ui/';
+import { PageLayout } from '@/components/layout/PageLayout';
+import { HomeHeader } from '@/components/layout/Header';
+import mediacity from '@/assets/images/mediacity.jpg';
 
 interface JoinSessionProps {
 	onJoin: (name: string) => void;
@@ -46,7 +46,7 @@ export const JoinSession = React.memo(({ onJoin }: JoinSessionProps) => {
 				<div className="container mt-7">
 					<CenteredContainer>
 						<Card>
-							<form>
+							<form onSubmit={handleSubmit}>
 								<FormInput
 									type="text"
 									id="displayName"
@@ -56,11 +56,7 @@ export const JoinSession = React.memo(({ onJoin }: JoinSessionProps) => {
 									inputClassName={`form-control ${error ? 'is-invalid' : ''}`}
 									wrapperClassName={`mb-3 ${error ? 'has-danger' : ''}`}
 								/>
-								<Button
-									buttonClassName="my-4 mb-2"
-									fullWidth={false}
-									onClick={handleSubmit}
-								>
+								<Button buttonClassName="my-4 mb-2" fullWidth={false} type="submit">
 									Submit
 								</Button>
 							</form>

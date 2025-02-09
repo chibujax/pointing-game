@@ -15,3 +15,6 @@ Change session header image
 
 add millewares for server requests
 What happens when session is not found
+
+Update readme with readme
+Add test

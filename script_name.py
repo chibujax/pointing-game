@@ -102,7 +102,8 @@ if __name__ == "__main__":
         'copied',
         '.DS_Store',
         'mediacity.jpg',
-        'custom.css'
+        'custom.css',
+        'dist'
     ]
     
     try:
