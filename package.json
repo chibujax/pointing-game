@@ -5,10 +5,8 @@
     "scripts": {
         "dev": "vite",
         "build": "tsc && vite build",
-        "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-        "lint:server": "eslint server --ext ts --report-unused-disable-directives --max-warnings 0",
-        "lint:all": "npm run lint && npm run lint:server",
-        "lint:fix": "eslint src server --ext ts,tsx --fix",
+        "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+        "lint:fix": "eslint . --ext ts,tsx --fix",
         "format": "prettier --write \"src/**/*.{ts,tsx,css,md}\"",
         "format:check": "prettier --check \"src/**/*.{ts,tsx,css,md}\"",
         "preview": "vite preview",
