@@ -20,7 +20,27 @@ export default defineConfig({
 	},
 	build: {
 		outDir: 'dist',
-		sourcemap: true,
+		sourcemap: process.env.NODE_ENV !== 'production', // Only generate sourcemaps for development
+		minify: 'terser', // Use terser for better minification (esbuild is the default)
+		terserOptions: {
+			compress: {
+				drop_console: process.env.NODE_ENV === 'production', // Remove console.log in production
+				drop_debugger: true,
+			},
+		},
+		rollupOptions: {
+			output: {
+				manualChunks: {
+					vendor: [
+						'react',
+						'react-dom',
+						'react-router-dom',
+						'socket.io-client',
+						'zustand',
+					],
+				},
+			},
+		},
 	},
 	server: {
 		proxy: {
