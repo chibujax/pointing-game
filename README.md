@@ -10,14 +10,19 @@ after reveal, voting is ignored at that point until restart
 
 Enter on join does not work
 
-test title
+
 Change session header image
 
-add millewares for server requests
+
+
+test title
 What happens when session is not found
 
 Update readme with readme
 Add test
+to paper 
+tests
+npm run clean && npm run build && npm run server:build
 
 # BBC Pointing Tool	
 

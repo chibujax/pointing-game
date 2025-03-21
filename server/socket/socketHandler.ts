@@ -2,6 +2,7 @@ import { Server, Socket } from 'socket.io';
 import { SessionService } from '../services/sessionService';
 import { VoteService } from '../services/voteService';
 import { Session } from '@/types';
+import { requireSessionMembership, requireSessionOwnership, socketAuth } from './socketMiddleware';
 
 export class SocketHandler {
 	private socketToUserId: Map<string, string> = new Map();
@@ -11,13 +12,14 @@ export class SocketHandler {
 		private io: Server,
 		private sessionService: SessionService,
 		private voteService: VoteService,
-	) {}
+	) {
+		this.io.use(socketAuth);
+	}
 
 	handleConnection(socket: Socket): void {
 		console.log('Client connected:', socket.id);
-		console.log('Session:', this.sessionService.sessions);
 
-		const userId = socket.handshake.query.userId as string;
+		const userId = socket.data.userId;
 		if (userId) {
 			const existingSocketId = this.userIdToSocket.get(userId);
 			if (existingSocketId) {
@@ -29,11 +31,10 @@ export class SocketHandler {
 
 		socket.on('joinSession', (data: { sessionId: string; name: string }) => {
 			const { sessionId, name } = data;
+			const userId = socket.data.userId;
 
 			const session = this.sessionService.getSession(sessionId);
-			const userId = this.socketToUserId.get(socket.id);
-
-			if (!session || !userId) {
+			if (!session) {
 				socket.emit('error', 'Session not found');
 				return;
 			}
@@ -50,10 +51,10 @@ export class SocketHandler {
 			}
 		});
 
-		socket.on('submitVote', (data: { vote: number }) => {
-			const userId = this.socketToUserId.get(socket.id);
+		socket.on('submitVote', requireSessionMembership(this.sessionService, (socket, data: { vote: number }) => {
+			const userId = socket.data.userId;
 			const session = this.findUserSession(userId);
-			if (!session || !userId) return;
+			if (!session) return;
 
 			const votingInProgress = Boolean(
 				session.storedResult === null ||
@@ -65,6 +66,12 @@ export class SocketHandler {
 				socket.emit('error', 'No voting in progress');
 				return;
 			}
+
+			if (!session.points.includes(data.vote)) {
+				socket.emit('voteError', `Invalid vote value. Allowed points are: ${session.points.join(', ')}`);
+				return;
+			}
+		
 
 			const currentVote = session.votes[userId];
 
@@ -81,19 +88,20 @@ export class SocketHandler {
 				const votedUsers = Object.keys(updatedSession.votes);
 				this.io.to(session.id).emit('voteUpdate', votedUsers);
 			}
-		});
+		}));
 
-		socket.on('revealVotes', () => {
-			const userId = this.socketToUserId.get(socket.id);
+		socket.on('revealVotes', requireSessionOwnership(this.sessionService, (socket) => {
+			const userId = socket.data.userId;
 			const session = this.findUserSession(userId);
-			if (!session || !userId) return;
+			if (!session) return;
+			
 			const results = this.voteService.processVotes(session.votes);
 			this.sessionService.updateSession(session.id, { storedResult: results });
 			this.io.to(session.id).emit('voteResults', results);
-		});
+		}));
 
-		socket.on('restartSession', () => {
-			const userId = this.socketToUserId.get(socket.id);
+		socket.on('restartSession', requireSessionOwnership(this.sessionService, (socket) => {
+			const userId = socket.data.userId;
 			const session = this.findUserSession(userId);
 			if (!session) return;
 
@@ -107,7 +115,7 @@ export class SocketHandler {
 				const storedResult = updatedSession.storedResult;
 				this.io.to(session.id).emit('userList', { userList, votedUsers, storedResult });
 			}
-		});
+		}));
 
 		socket.on('disconnect', () => {
 			const userId = this.socketToUserId.get(socket.id);
@@ -128,10 +136,8 @@ export class SocketHandler {
 			}
 		});
 
-		socket.on('leaveSession', () => {
-			const userId = this.socketToUserId.get(socket.id);
-			if (!userId) return;
-
+		socket.on('leaveSession', requireSessionMembership(this.sessionService, (socket) => {
+			const userId = socket.data.userId;
 			const session = this.findUserSession(userId);
 			if (!session) return;
 
@@ -147,13 +153,12 @@ export class SocketHandler {
 				const storedResult = updatedSession.storedResult;
 				this.io.to(session.id).emit('userList', { userList, votedUsers, storedResult });
 			}
-		});
+		}));
 
-		socket.on('endSession', () => {
-			const userId = this.socketToUserId.get(socket.id);
+		socket.on('endSession', requireSessionOwnership(this.sessionService, (socket) => {
+			const userId = socket.data.userId;
 			const session = this.findUserSession(userId);
-
-			if (!session || !userId || session.owner !== userId) return;
+			if (!session) return;
 
 			this.io.to(session.id).emit('sessionEnded');
 			this.sessionService.deleteSession(session.id);
@@ -165,7 +170,21 @@ export class SocketHandler {
 					socket?.leave(session.id);
 				});
 			}
-		});
+		}));
+
+		socket.on('setVoteTitle', requireSessionOwnership(this.sessionService, (socket, data: { title: string }) => {
+			const userId = socket.data.userId;
+			const session = this.findUserSession(userId);
+			if (!session) return;
+			
+			const updatedSession = this.sessionService.updateSession(session.id, {
+				voteTitle: data.title
+			});
+			
+			if (updatedSession) {
+				this.io.to(session.id).emit('voteTitle', data.title);
+			}
+		}));
 	}
 
 	private findUserSession(userId: string | undefined): Session | null {

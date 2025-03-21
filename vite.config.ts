@@ -20,11 +20,11 @@ export default defineConfig({
 	},
 	build: {
 		outDir: 'dist',
-		sourcemap: process.env.NODE_ENV !== 'production', // Only generate sourcemaps for development
-		minify: 'terser', // Use terser for better minification (esbuild is the default)
+		sourcemap: process.env.NODE_ENV !== 'production',
+		minify: 'terser',
 		terserOptions: {
 			compress: {
-				drop_console: process.env.NODE_ENV === 'production', // Remove console.log in production
+				drop_console: process.env.NODE_ENV === 'production',
 				drop_debugger: true,
 			},
 		},
