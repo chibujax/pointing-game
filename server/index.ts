@@ -4,7 +4,7 @@ import { Server } from 'socket.io';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import path from 'path';
-import { SessionService } from './services/sessionService';
+import { FileSessionService } from './services/fileSessionService';
 import { VoteService } from './services/voteService';
 import { SessionController } from './controllers/sessionController';
 import { SocketHandler } from './socket/socketHandler';
@@ -23,7 +23,7 @@ const io = new Server(httpServer, {
 	},
 });
 
-const sessionService = new SessionService();
+const sessionService = new FileSessionService();
 const voteService = new VoteService();
 const sessionController = new SessionController(sessionService);
 const socketHandler = new SocketHandler(io, sessionService, voteService);
@@ -62,6 +62,11 @@ app.use(notFoundHandler);
 app.use(globalErrorHandler);
 
 io.on('connection', (socket) => socketHandler.handleConnection(socket));
+
+process.on('SIGINT', () => {
+	console.log('Server shutting down');
+	process.exit(0);
+});
 
 const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, () => {

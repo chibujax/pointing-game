@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import { SessionService } from '../services/sessionService';
+import { FileSessionService } from '../services/fileSessionService';
 import { Session } from '../../src/types';
 
 export class SessionController {
-	constructor(private sessionService: SessionService) {}
+	constructor(private sessionService: FileSessionService) {}
 
 	createSession = async (req: Request, res: Response): Promise<void> => {
 		try {
@@ -30,6 +30,7 @@ export class SessionController {
 				session,
 			});
 		} catch (error) {
+			console.error('Failed to create session:', error);
 			res.status(500).json({ error: 'Failed to create session' });
 		}
 	};
@@ -46,6 +47,7 @@ export class SessionController {
 
 			res.json(session);
 		} catch (error) {
+			console.error('Failed to get session:', error);
 			res.status(500).json({ error: 'Failed to get session' });
 		}
 	};
@@ -70,6 +72,7 @@ export class SessionController {
 			const session = this.sessionService.getSession(sessionId);
 			res.json(session);
 		} catch (error) {
+			console.error('Failed to join session:', error);
 			res.status(500).json({ error: 'Failed to join session' });
 		}
 	};

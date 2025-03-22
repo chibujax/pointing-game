@@ -1,5 +1,5 @@
 import { Socket } from 'socket.io';
-import { SessionService } from '../services/sessionService';
+import { FileSessionService } from '../services/fileSessionService';
 
 export interface SocketAuthData {
   userId: string;
@@ -12,13 +12,12 @@ export const socketAuth = (socket: Socket, next: (err?: Error) => void): void =>
   if (!userId || typeof userId !== 'string') {
     return next(new Error('Authentication error: Missing or invalid userId'));
   }
-  console.log("*** in socket auth")
   socket.data.userId = userId;
   next();
 };
 
 export const verifySessionMembership = (
-  sessionService: SessionService,
+  sessionService: FileSessionService,
   userId: string,
   sessionId: string
 ): boolean => {
@@ -27,7 +26,7 @@ export const verifySessionMembership = (
 };
 
 export const verifySessionOwnership = (
-  sessionService: SessionService,
+  sessionService: FileSessionService,
   userId: string,
   sessionId: string
 ): boolean => {
@@ -36,7 +35,7 @@ export const verifySessionOwnership = (
 };
 
 export const requireSessionMembership = (
-  sessionService: SessionService,
+  sessionService: FileSessionService,
   socket: Socket,
   handler: (...args: any[]) => void
 ) => {
@@ -54,7 +53,7 @@ export const requireSessionMembership = (
 };
 
 export const requireSessionOwnership = (
-  sessionService: SessionService,
+  sessionService: FileSessionService,
   socket: Socket,
   handler: (...args: any[]) => void
 ) => {
@@ -71,8 +70,8 @@ export const requireSessionOwnership = (
   };
 };
 
-const findSessionForUser = (sessionService: SessionService, userId: string): string | null => {
-  for (const [sessionId, session] of sessionService.sessions.entries()) {
+const findSessionForUser = (sessionService: FileSessionService, userId: string): string | null => {
+  for (const [sessionId, session] of sessionService.allSessions.entries()) {
     if (session.users[userId]) {
       return sessionId;
     }

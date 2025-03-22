@@ -1,15 +1,5 @@
-
-
-
-
-test title
-What happens when session is not found
-
-Update readme with readme
+Update readme with readme: Todo - css, database, AI stats,star commands
 Add test
-to paper
-css 
-tests
 npm run clean && npm run build && npm run server:build
 npm run server:dev
 npm run dev

@@ -1,5 +1,5 @@
 import { Server, Socket } from 'socket.io';
-import { SessionService } from '../services/sessionService';
+import { FileSessionService } from '../services/fileSessionService';
 import { VoteService } from '../services/voteService';
 import { Session } from '@/types';
 import { requireSessionMembership, requireSessionOwnership, socketAuth } from './socketMiddleware';
@@ -10,7 +10,7 @@ export class SocketHandler {
 
 	constructor(
 		private io: Server,
-		private sessionService: SessionService,
+		private sessionService: FileSessionService,
 		private voteService: VoteService,
 	) {
 		this.io.use(socketAuth);
@@ -128,10 +128,13 @@ export class SocketHandler {
 
 				if (session) {
 					this.sessionService.removeUserFromSession(session.id, userId);
-					const userList = Object.entries(session.users);
-					const votedUsers = Object.keys(session.votes);
-					const storedResult = session.storedResult;
-					this.io.to(session.id).emit('userList', { userList, votedUsers, storedResult });
+					const updatedSession = this.sessionService.getSession(session.id);
+					if (updatedSession) {
+						const userList = Object.entries(updatedSession.users);
+						const votedUsers = Object.keys(updatedSession.votes);
+						const storedResult = updatedSession.storedResult;
+						this.io.to(session.id).emit('userList', { userList, votedUsers, storedResult });
+					}
 				}
 			}
 		});
@@ -172,7 +175,7 @@ export class SocketHandler {
 			}
 		}));
 
-		socket.on('setVoteTitle', requireSessionOwnership(this.sessionService, socket,( data: { title: string }) => {
+		socket.on('setVoteTitle', requireSessionOwnership(this.sessionService, socket, (data: { title: string }) => {
 			const userId = socket.data.userId;
 			const session = this.findUserSession(userId);
 			if (!session) return;
@@ -195,7 +198,7 @@ export class SocketHandler {
 	private findUserSession(userId: string | undefined): Session | null {
 		if (!userId) return null;
 
-		for (const session of this.sessionService.sessions.values()) {
+		for (const session of this.sessionService.allSessions.values()) {
 			if (session.users[userId]) {
 				return session;
 			}
