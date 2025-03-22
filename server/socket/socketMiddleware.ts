@@ -12,7 +12,7 @@ export const socketAuth = (socket: Socket, next: (err?: Error) => void): void =>
   if (!userId || typeof userId !== 'string') {
     return next(new Error('Authentication error: Missing or invalid userId'));
   }
-  
+  console.log("*** in socket auth")
   socket.data.userId = userId;
   next();
 };
@@ -37,37 +37,37 @@ export const verifySessionOwnership = (
 
 export const requireSessionMembership = (
   sessionService: SessionService,
-  handler: (socket: Socket, data: any) => void
+  socket: Socket,
+  handler: (...args: any[]) => void
 ) => {
-  return (socket: Socket, data: any) => {
+  return (...args: any[]) => {
     const userId = socket.data.userId;
-    const sessionId = data.sessionId || findSessionForUser(sessionService, userId);
+    const sessionId = findSessionForUser(sessionService, userId);
     
     if (!sessionId || !verifySessionMembership(sessionService, userId, sessionId)) {
       socket.emit('error', 'Access denied: You are not a member of this session');
       return;
     }
     
-    handler(socket, data);
+    handler(...args);
   };
 };
 
 export const requireSessionOwnership = (
   sessionService: SessionService,
-  handler: (socket: Socket, data: any) => void
+  socket: Socket,
+  handler: (...args: any[]) => void
 ) => {
-  console.log("*** handler", sessionService, handler)
-  return (socket: Socket, data: any) => {
-    console.log("*** socket", socket, data)
+  return (...args: any[]) => {
     const userId = socket.data.userId;
-    const sessionId = data.sessionId || findSessionForUser(sessionService, userId);
+    const sessionId = findSessionForUser(sessionService, userId);
     
     if (!sessionId || !verifySessionOwnership(sessionService, userId, sessionId)) {
       socket.emit('error', 'Access denied: You are not the owner of this session');
       return;
     }
     
-    handler(socket, data);
+    handler(...args);
   };
 };
 

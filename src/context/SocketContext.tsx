@@ -24,6 +24,7 @@ interface SocketProviderProps {
 	onUserUpdate?: (users: Array<[string, string]>) => void;
 	onVoteUpdate?: (votes: string[]) => void;
 	onVoteReveal?: (results: VoteResults) => void;
+	onVoteTitleChange?: (title: string) => void;
 	onSessionEnd?: () => void;
 	onError?: (error: string) => void;
 }
@@ -41,6 +42,7 @@ export const SocketProvider = ({
 	onUserUpdate,
 	onVoteUpdate,
 	onVoteReveal,
+	onVoteTitleChange,
 	onSessionEnd,
 	onError,
 }: SocketProviderProps): JSX.Element => {
@@ -84,6 +86,10 @@ export const SocketProvider = ({
 
 		socket.on('error', (error: string) => {
 			onError?.(error);
+		});
+
+		socket.on('voteTitle', (title: string) => {
+			onVoteTitleChange?.(title);
 		});
 	};
 

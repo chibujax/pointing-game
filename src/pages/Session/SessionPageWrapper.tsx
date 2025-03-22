@@ -11,6 +11,7 @@ const SessionPageWrapper = (): JSX.Element => {
 	const clearUser = useUserStore((state) => state.clear);
 	const resetSession = useSessionStore((state) => state.reset);
 	const setErrorMessage = useSessionStore((state) => state.setErrorMessage);
+	const setVoteTitle = useSessionStore((state) => state.setVoteTitle);
 	const resetVote = useVoteStore((state) => state.reset);
 	const setUsers = useSessionStore((state) => state.setUsers);
 
@@ -36,12 +37,17 @@ const SessionPageWrapper = (): JSX.Element => {
 		useVoteStore.getState().setResults(results);
 	};
 
+	const handleVoteTitleChange = (title: string): void => {
+		setVoteTitle(title);
+	};
+
 	return (
 		<SocketProvider
 			onSessionEnd={handleSessionEnd}
 			onVoteUpdate={handleVoteUpdate}
 			onUserUpdate={handleUserUpdate}
 			onVoteReveal={handleVoteReveal}
+			onVoteTitleChange={handleVoteTitleChange}
 			onError={setErrorMessage}
 		>
 			<SessionPage />

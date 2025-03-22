@@ -1,17 +1,4 @@
 
-Attach users to vote result so that after a wile, it should persist
-after vote,
-when admin refreshes, he should still see results
-same as users
-
-
-after reveal, voting is ignored at that point until restart
-
-
-Enter on join does not work
-
-
-Change session header image
 
 
 
@@ -20,9 +7,13 @@ What happens when session is not found
 
 Update readme with readme
 Add test
-to paper 
+to paper
+css 
 tests
 npm run clean && npm run build && npm run server:build
+npm run server:dev
+npm run dev
+npx concurrently "npm run server:dev" "npm run dev"
 
 # BBC Pointing Tool	
 

@@ -51,7 +51,7 @@ export class SocketHandler {
 			}
 		});
 
-		socket.on('submitVote', requireSessionMembership(this.sessionService, (socket, data: { vote: number }) => {
+		socket.on('submitVote', requireSessionMembership(this.sessionService, socket, (data: { vote: number }) => {
 			const userId = socket.data.userId;
 			const session = this.findUserSession(userId);
 			if (!session) return;
@@ -68,10 +68,10 @@ export class SocketHandler {
 			}
 
 			if (!session.points.includes(data.vote)) {
-				socket.emit('voteError', `Invalid vote value. Allowed points are: ${session.points.join(', ')}`);
+				const allowedPoints = session.points.join(', '); 
+				socket.emit('error', `Invalid vote value. Allowed points are: ${allowedPoints}`);
 				return;
 			}
-		
 
 			const currentVote = session.votes[userId];
 
@@ -90,7 +90,7 @@ export class SocketHandler {
 			}
 		}));
 
-		socket.on('revealVotes', requireSessionOwnership(this.sessionService, (socket) => {
+		socket.on('revealVotes', requireSessionOwnership(this.sessionService, socket, () => {
 			const userId = socket.data.userId;
 			const session = this.findUserSession(userId);
 			if (!session) return;
@@ -100,7 +100,7 @@ export class SocketHandler {
 			this.io.to(session.id).emit('voteResults', results);
 		}));
 
-		socket.on('restartSession', requireSessionOwnership(this.sessionService, (socket) => {
+		socket.on('restartSession', requireSessionOwnership(this.sessionService, socket, () => {
 			const userId = socket.data.userId;
 			const session = this.findUserSession(userId);
 			if (!session) return;
@@ -136,7 +136,7 @@ export class SocketHandler {
 			}
 		});
 
-		socket.on('leaveSession', requireSessionMembership(this.sessionService, (socket) => {
+		socket.on('leaveSession', requireSessionMembership(this.sessionService, socket, () => {
 			const userId = socket.data.userId;
 			const session = this.findUserSession(userId);
 			if (!session) return;
@@ -155,7 +155,7 @@ export class SocketHandler {
 			}
 		}));
 
-		socket.on('endSession', requireSessionOwnership(this.sessionService, (socket) => {
+		socket.on('endSession', requireSessionOwnership(this.sessionService, socket, () => {
 			const userId = socket.data.userId;
 			const session = this.findUserSession(userId);
 			if (!session) return;
@@ -172,10 +172,15 @@ export class SocketHandler {
 			}
 		}));
 
-		socket.on('setVoteTitle', requireSessionOwnership(this.sessionService, (socket, data: { title: string }) => {
+		socket.on('setVoteTitle', requireSessionOwnership(this.sessionService, socket,( data: { title: string }) => {
 			const userId = socket.data.userId;
 			const session = this.findUserSession(userId);
 			if (!session) return;
+
+			if (!data.title || typeof data.title !== 'string' || data.title.length < 2 || data.title.length > 100) {
+				socket.emit('error', 'Invalid title. Must be between 2 and 100 characters.');
+				return;
+			}
 			
 			const updatedSession = this.sessionService.updateSession(session.id, {
 				voteTitle: data.title

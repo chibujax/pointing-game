@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { useSession } from '@/hooks/useSession';
@@ -15,6 +15,7 @@ import { useSessionStore } from '@/stores/sessionStore';
 import { useVoteStore } from '@/stores/voteStore';
 import { Session } from '@/types';
 import { Alert } from '@/components/ui';
+import { useSocket } from '@/context/SocketContext';
 
 const SessionPage = (): JSX.Element => {
 	const { sessionId = '' } = useParams();
@@ -25,11 +26,14 @@ const SessionPage = (): JSX.Element => {
 	const { userId, displayName, isOwner, setUser, setSession } = useUserStore();
 	const { session, start, leave, end } = useSession();
 	const { handleVote, handleReveal, resetVoting } = useVoting();
+	const { setVoteTitle } = useSocket();
 	const votedUsers = useVoteStore((state) => state.votedUsers);
 	const results = useVoteStore((state) => state.results);
 	const isRevealed = useVoteStore((state) => state.isRevealed);
-	const errorMessage = useSessionStore((state) => state.errorMessage);
-	const setErrorMessage = useSessionStore((state) => state.setErrorMessage);
+	const sessionStore = useSessionStore();
+	const errorMessage = sessionStore.errorMessage;
+	const voteTitle = sessionStore.voteTitle;
+	
 	const startSession = (
 		sessionData: Session,
 		id: string,
@@ -39,6 +43,9 @@ const SessionPage = (): JSX.Element => {
 		const isSessionOwner = sessionData.owner === id;
 		start(sessionData.id, userName, sessionData.points, id, sessionData.name, isSessionOwner);
 		setSession(sessionId, isSessionOwner);
+		if (sessionData.voteTitle) {
+			sessionStore.setVoteTitle(sessionData.voteTitle);
+		}
 		setShowJoin(showJoin);
 	};
 
@@ -82,8 +89,8 @@ const SessionPage = (): JSX.Element => {
 		setShowJoin(false);
 	};
 
-	const handleAlertDismis = (): void => {
-		setErrorMessage(null);
+	const handleAlertDismiss = (): void => {
+		sessionStore.setErrorMessage(null);
 	};
 
 	const handleLeave = (): void => {
@@ -96,6 +103,12 @@ const SessionPage = (): JSX.Element => {
 		navigate('/');
 	};
 
+	const handleTitleChange = useCallback((title: string): void => {
+		if (isOwner && setVoteTitle) {
+			setVoteTitle(title);
+		}
+	}, [isOwner, setVoteTitle]);
+
 	if (isValidating) return <div>Loading...</div>;
 
 	if (showJoin) return <JoinSession onJoin={handleJoin} />;
@@ -107,16 +120,20 @@ const SessionPage = (): JSX.Element => {
 	return (
 		<PageLayout sessionId={sessionId} sessionName={session.name || undefined} onLeave={leave}>
 			<SessionHeader backgroundImage={mediacity} />
-			<TopNav isAdmin={isOwner} handleExit={handleLeave} />
+			<TopNav 
+				isAdmin={isOwner} 
+				handleExit={handleLeave} 
+				handleTitleChange={handleTitleChange}
+			/>
 			<MidNav
 				isAdmin={isOwner}
 				sessionName={session.name}
-				sessionTitle={''}
+				sessionTitle={voteTitle}
 				handleEndSession={end}
 			/>
 			{errorMessage && (
 				<Alert
-					onDismiss={handleAlertDismis}
+					onDismiss={handleAlertDismiss}
 					variant="danger"
 					title="Error!"
 					message={errorMessage}
