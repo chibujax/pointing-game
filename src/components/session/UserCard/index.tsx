@@ -29,7 +29,7 @@ export const UserBoard: React.FC<UserBoardProps> = ({
 	votedUsers,
 }) => {
 	return (
-		<div className="col-md-8">
+		<div className="col-md-7">
 			<div className="card" style={{ minHeight: '30vh' }}>
 				<div className="card-body">
 					<VotingArea>

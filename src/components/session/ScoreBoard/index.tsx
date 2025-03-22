@@ -38,7 +38,7 @@ const ResultStats = ({ title, value, color = 'bg-dark' }: ResultStatsProps): JSX
 
 const VoterDisplay = ({ voters, users, title, score, color }: VoterDisplayProps): JSX.Element => {
 	return (
-		<div className="col-lg-4 col-12" style={{ display: 'flex', flexDirection: 'column' }}>
+		<div className="col-xxl-4 col-12" style={{ display: 'flex', flexDirection: 'column' }}>
 			<div
 				className={`card card-frame ms-sm-3 mt-sm-3 ${color} text-white`}
 				style={{ flex: 1 }}
@@ -85,7 +85,7 @@ export const ScoreBoard = memo(
 		}, [users]);
 
 		return (
-			<div className="col-md-4">
+			<div className="col-md-5">
 				<div className="card card-profile">
 					<div id="scoreAdmin" className="card-header text-center border-0">
 						{isAdmin && (
