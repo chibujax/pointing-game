@@ -1,4 +1,5 @@
 import { Button } from '../Button';
+import logo from '@/assets/images/logo.png';
 interface TopNavProps {
 	isAdmin: boolean;
 	sessionName: string | null;
@@ -18,7 +19,7 @@ export const MidNav = ({
 				<div className="col-auto">
 					<div className="avatar avatar-xl position-relative">
 						<img
-							src="https://chibujax.com/logo_game_high_res.png"
+							src={logo}
 							alt="profile_image"
 							className="w-100 border-radius-lg shadow-sm"
 						/>

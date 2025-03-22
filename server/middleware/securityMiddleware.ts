@@ -56,7 +56,15 @@ export const sanitizeRequest: RequestHandler = (req: Request, _res: Response, ne
 export const securityHeaders: RequestHandler = (_req: Request, res: Response, next: NextFunction): void => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-Frame-Options', 'DENY');
-    res.setHeader('Content-Security-Policy', "default-src 'self'");
+    res.setHeader('Content-Security-Policy', 
+        "default-src 'self'; " +
+        "style-src 'self' 'unsafe-inline'; " + 
+        "script-src 'self' https://cdnjs.cloudflare.com; " +
+        "connect-src 'self' wss:; " +
+        "img-src 'self' data: https: http:; " +  // Allow images from all sources
+        "font-src 'self' data:;"
+    );
+    
     res.setHeader('X-XSS-Protection', '1; mode=block');
     res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
     
@@ -72,7 +80,7 @@ export const basicValidation: RequestHandler = (req: Request, res: Response, nex
         res.status(413).json({ error: 'Request entity too large' });
         return;
     }
-    
+
 
     if (req.is('application/json') && req.body) {
         try {
